@@ -1,36 +1,62 @@
-import '@lion/ui/define/lion-calendar.js';
-import '@lion/ui/define/lion-accordion.js';
 import { LitElement, html } from 'lit';
-import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { LionAccordion } from '@lion/ui/accordion.js';
-import '@lion/ui/define/lion-button.js';
-import '@lion/ui/define/lion-accordion.js';
+import '@lion/ui/define/lion-form.js';
+import '@lion/ui/define/lion-input.js';
 
+import { Required } from '@lion/ui/form-core.js';
+import { loadDefaultFeedbackMessages } from '@lion/ui/validate-messages.js';
 
-class MyLionApp extends ScopedElementsMixin(LitElement) {
-  static get scopedElements() {
-    return { 'lion-accordion': LionAccordion };
-  }
+loadDefaultFeedbackMessages();
+
+class MyLionApp extends LitElement {
+
+  __submitHandler = ev => {
+    if (ev.target.hasFeedbackFor.includes('error')) {
+      const firstFormElWithError = ev.target.formElements.find(el =>
+        el.hasFeedbackFor.includes('error'),
+      );
+      firstFormElWithError.focus();
+      return;
+    }
+    const formData = ev.target.serializedValue;
+    console.log(formData);
+    fetch('/api/foo/', {
+      method: 'POST',
+      body: JSON.stringify(formData),
+    });
+  };
+  __submitViaJS = ev => {
+    // Call submit on the lion-form element, in your own code you should use
+    // a selector that's not dependent on DOM structure like this one.
+    ev.target.previousElementSibling.submit();
+  };
   render() {
     return html`
-      <div style="text-align: center; margin: 0 auto; max-width: 700px">
-        <h1>A Web App made with lion</h1>
-
-        <lion-button>Default</lion-button>
-        <lion-accordion>
-          <h3 slot="invoker">
-            <button>Nutritional value</button>
-          </h3>
-          <p slot="content">
-            Orange flesh is 87% water, 12% carbohydrates, 1% protein, and contains negligible fat (table).
-            In a 100 gram reference amount, orange flesh provides 47 calories, and is a rich source of
-            vitamin C, providing 64% of the Daily Value. No other micronutrients are present in significant
-            amounts (table).
-          </p>
-        </lion-accordion>
-        <lion-calendar></lion-calendar>
-      </div>
-    `;
+    <lion-form @submit=${this.__submitHandler}>
+      <form @submit=${ev => ev.preventDefault()}>
+        <lion-input
+          name="firstName"
+          label="First Name"
+          .validators="${[new Required()]}"
+        ></lion-input>
+        <lion-input
+          name="lastName"
+          label="Last Name"
+          .validators="${[new Required()]}"
+        ></lion-input>
+        <div style="display:flex">
+          <button>Submit</button>
+          <button
+            type="button"
+            @click=${ev => ev.currentTarget.parentElement.parentElement.parentElement.resetGroup()}
+          >
+            Reset
+          </button>
+        </div>
+      </form>
+    </lion-form>
+    <button @click=${this.__submitViaJS}>Explicit submit via JavaScript</button>
+  `;
   }
+
 }
 customElements.define('my-lion-app', MyLionApp);
