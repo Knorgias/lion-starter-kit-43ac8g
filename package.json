@@ -1,0 +1,23 @@
+{
+  "name": "my-lion-app",
+  "version": "1.0.0",
+  "description": "A web app that uses @lion/ui",
+  "main": "index.js",
+  "scripts": {
+    "start": "web-dev-server --config web-dev-server.config.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web",
+    "app",
+    "lion"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@lion/ui": "^0.2.0"
+  },
+  "devDependencies": {
+    "@web/dev-server": "^0.1.38"
+  }
+}
